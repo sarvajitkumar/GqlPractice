@@ -1,0 +1,46 @@
+scalar DateTime
+
+type User{
+    id:ID!
+    name:String
+    email:String
+    gender:String
+    posts:[Post]
+    todos:[Todo]
+}
+
+type Post{
+    id:ID!
+    userId:ID!
+    title:String
+    body:String
+    comments:[Comment]
+}
+
+type Comment{
+    id:ID!
+    postId:ID!
+    email:String
+    body:String
+}
+
+type Todo{
+    id:ID!
+    userId:ID!
+    title:String
+    dueOn:DateTime
+}
+
+type Query{
+    getUser(id:ID!):User
+    getPost(id:ID!):Post
+    getComment(id:ID!):Comment
+    getTodo(id:ID!):Todo
+    getUserTodos(id:ID!):[Todo]
+    getUserPosts(id:ID!):[Post]
+    getPostComments(id:ID!):[Comment]
+    getAllUsers:[User]
+    getAllTodos:[Todo]
+    getAllPosts:[Post]
+    getAllComments:[Comment]
+}
