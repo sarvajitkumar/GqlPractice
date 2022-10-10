@@ -1,27 +1,28 @@
 import resolvers from "./resolvers";
 
-describe("Testing resolvers.query", () => {
-  const mockData = {
-    user: {
-      id: 1,
-      email: "Hi I am email",
-    },
-    todo: {
-      id: 2,
-      subject: "Hi I am todo",
-      user_id: 1,
-      due_on: 1234,
-    },
-    comment: {
-      id: 3,
-      body: "Hi I am body",
-    },
-    post: {
-      id: 4,
-      body: "Hi I am body",
-      user_id: 1,
-    },
-  };
+const mockData = {
+  user: {
+    id: 1,
+    email: "Hi I am email",
+  },
+  todo: {
+    id: 2,
+    subject: "Hi I am todo",
+    user_id: 1,
+    due_on: 1234,
+  },
+  comment: {
+    id: 3,
+    body: "Hi I am body",
+    post_id: 4
+  },
+  post: {
+    id: 4,
+    body: "Hi I am body",
+    user_id: 1,
+  },
+};
+describe("Testing resolvers.Query", () => {
   it("testing Query.getUser", () => {
     const dataSources = { GoRestAPI: {} };
     dataSources.GoRestAPI.getUser = jest.fn(() => mockData.user);
@@ -173,33 +174,12 @@ describe("Testing resolvers.query", () => {
 });
 
 describe("Testing resolvers.User", () => {
-  const mockData = {
-    user: {
-      id: 1,
-      email: "Hi I am email",
-    },
-    todo: {
-      id: 2,
-      subject: "Hi I am todo",
-      user_id: 1,
-      due_on: 1234,
-    },
-    comment: {
-      id: 3,
-      body: "Hi I am body",
-    },
-    post: {
-      id: 4,
-      body: "Hi I am body",
-      user_id: 1,
-    },
-  };
   it("Testing User.todos", () => {
     const dataSources = { GoRestAPI: {} };
-    dataSources.GoRestAPI.todos = jest.fn(() => [mockData.todo])
-    const response = resolvers.User.todos(mockData.user, {}, dataSources);
+    dataSources.GoRestAPI.getUserTodos = jest.fn(() => [mockData.todo])
+    const response = resolvers.User.todos(mockData.user, {}, { dataSources });
     expect(response).toBeDefined();
-    expect(response).toHaveBeenCalledTimes(1);
+    expect(dataSources.GoRestAPI.getUserTodos).toHaveBeenCalledTimes(1);
     expect(dataSources.GoRestAPI.getUserTodos).toHaveBeenCalledWith(
       mockData.user.id
     );
@@ -207,13 +187,53 @@ describe("Testing resolvers.User", () => {
   })
   it("Testing User.posts", () => {
     const dataSources = { GoRestAPI: {} };
-    dataSources.GoRestAPI.posts = jest.fn(() => [mockData.post])
-    const response = resolvers.User.todos(mockData.user, {}, dataSources);
+    dataSources.GoRestAPI.getUserPosts = jest.fn(() => [mockData.post])
+    const response = resolvers.User.posts(mockData.user, {}, { dataSources });
     expect(response).toBeDefined();
-    expect(response).toHaveBeenCalledTimes(1);
+    expect(dataSources.GoRestAPI.getUserPosts).toHaveBeenCalledTimes(1);
     expect(dataSources.GoRestAPI.getUserPosts).toHaveBeenCalledWith(
       mockData.user.id
     );
     expect(response).toEqual([mockData.post]);
+  })
+});
+
+describe("Testing resolvers.Todo", () => {
+
+  it("Testing Todo.userId", () => {
+    const response = resolvers.Todo.userId(mockData.todo);
+    expect(response).toBeDefined();
+    expect(response).toEqual(mockData.todo.user_id);
+  })
+  it("Testing Todo.dueOn", () => {
+    const response = resolvers.Todo.dueOn(mockData.todo);
+    expect(response).toBeDefined();
+    expect(response).toEqual(mockData.todo.due_on);
+  })
+});
+
+describe("Testing resolvers.Post", () => {
+
+  it("Testing Post.userId", () => {
+    const response = resolvers.Post.userId(mockData.post);
+    expect(response).toBeDefined();
+    expect(response).toEqual(mockData.post.user_id);
+  })
+  it("Testing Post.comments", () => {
+    const dataSources = { GoRestAPI: {} };
+    dataSources.GoRestAPI.getPostComments = jest.fn(() => [mockData.comment])
+    const response = resolvers.Post.comments(mockData.post, {}, { dataSources });
+    expect(response).toBeDefined();
+    expect(dataSources.GoRestAPI.getPostComments).toHaveBeenCalledTimes(1);
+    expect(dataSources.GoRestAPI.getPostComments).toHaveBeenCalledWith(mockData.post.id);
+    expect(response).toEqual([mockData.comment]);
+  })
+});
+describe("Testing resolvers.Comment", () => {
+
+  it("Testing Comment.postId", () => {
+    const response = resolvers.Comment.postId(mockData.comment);
+    expect(response).toBeDefined();
+    expect(response).toEqual(mockData.comment.post_id);
   })
 });
